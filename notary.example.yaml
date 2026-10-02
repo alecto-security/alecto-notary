@@ -1,0 +1,20 @@
+# Copy to notary.yaml. Create the key first: alecto-notary keygen --out ./data/device.key
+device_id: notary-store-142
+root: ./data
+key_file: ./data/device.key
+segment_secs: 60
+clock_source: ntp          # ntp | rtc | host - recorded in every signed record
+
+retention:
+  max_age_days: 30
+  # max_bytes: 800000000000  # hard cap on unlocked footage
+
+api:
+  bind: 127.0.0.1:8081     # loopback only until TLS lands
+  token_env: ALECTO_NOTARY_TOKEN
+
+cameras:
+  - id: CAM-W01
+    uri: rtsp://192.168.1.64:554/Streaming/Channels/101
+    username: svc-alecto
+    password_env: CAM_W01_PASS   # never put the password in this file

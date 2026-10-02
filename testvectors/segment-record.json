@@ -1,0 +1,69 @@
+{
+  "canonical_example": {
+    "input": {
+      "a": {
+        "c": "x",
+        "d": [
+          1,
+          2
+        ]
+      },
+      "b": 1
+    },
+    "output": "{\"a\":{\"c\":\"x\",\"d\":[1,2]},\"b\":1}"
+  },
+  "description": "Contract C2 test vectors. Seed bytes are 1..=32. Implementations must reproduce signing_string, record_hash and sig exactly.",
+  "key_id": "65b60673d6ed884b",
+  "public_key_b64": "ebVWLo/mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ=",
+  "records": [
+    {
+      "bytes": 0,
+      "camera_id": "CAM-W01",
+      "clock": {
+        "skew_ms": 400,
+        "source": "ntp"
+      },
+      "device_id": "notary-test",
+      "end_utc": "2026-10-02T14:04:00.000Z",
+      "file": "segments/CAM-W01/2026-10-02/140300_1.ts",
+      "key_id": "65b60673d6ed884b",
+      "kind": "segment",
+      "prev_record_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "seq": 1,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sig": "gI9WH5hbLzLIO80NW5iDsSoYabXukvZvARu0sjbsdJYqy7e2SRPREP8v8s+5Fe5fb7z+rxdu8H3niqGopOnsDQ==",
+      "start_utc": "2026-10-02T14:03:00.000Z",
+      "v": 1
+    },
+    {
+      "camera_id": "CAM-W01",
+      "clock": {
+        "skew_ms": 400,
+        "source": "ntp"
+      },
+      "device_id": "notary-test",
+      "end_utc": "2026-10-02T14:05:30.000Z",
+      "key_id": "65b60673d6ed884b",
+      "kind": "gap",
+      "prev_record_hash": "35751b7c51f6396c1b5aed402f128fa44dc737db51fc78bf710df4c803059ebc",
+      "reason": "source_unreachable",
+      "seq": 2,
+      "sig": "WuCdwHl8j0hRntrEis+Ndk0w0Vqv9iUQJsMgYeFfJQNgFE0Wa1jr51kR0u1BZ5/kdHjXul9tU9016ED2WhiNDA==",
+      "start_utc": "2026-10-02T14:04:00.000Z",
+      "v": 1
+    }
+  ],
+  "seed_hex": "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+  "vectors": [
+    {
+      "record_hash": "35751b7c51f6396c1b5aed402f128fa44dc737db51fc78bf710df4c803059ebc",
+      "seq": 1,
+      "signing_string": "{\"bytes\":0,\"camera_id\":\"CAM-W01\",\"clock\":{\"skew_ms\":400,\"source\":\"ntp\"},\"device_id\":\"notary-test\",\"end_utc\":\"2026-10-02T14:04:00.000Z\",\"file\":\"segments/CAM-W01/2026-10-02/140300_1.ts\",\"key_id\":\"65b60673d6ed884b\",\"kind\":\"segment\",\"prev_record_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"seq\":1,\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"start_utc\":\"2026-10-02T14:03:00.000Z\",\"v\":1}"
+    },
+    {
+      "record_hash": "45d757671ede7b3438d4a862de5852944e7db017803c507a1b424a6e3edffef5",
+      "seq": 2,
+      "signing_string": "{\"camera_id\":\"CAM-W01\",\"clock\":{\"skew_ms\":400,\"source\":\"ntp\"},\"device_id\":\"notary-test\",\"end_utc\":\"2026-10-02T14:05:30.000Z\",\"key_id\":\"65b60673d6ed884b\",\"kind\":\"gap\",\"prev_record_hash\":\"35751b7c51f6396c1b5aed402f128fa44dc737db51fc78bf710df4c803059ebc\",\"reason\":\"source_unreachable\",\"seq\":2,\"start_utc\":\"2026-10-02T14:04:00.000Z\",\"v\":1}"
+    }
+  ]
+}

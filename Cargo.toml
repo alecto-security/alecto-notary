@@ -1,0 +1,37 @@
+[package]
+name = "alecto-notary"
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"
+description = "Continuous signed recording with a tamper-evident hash chain, retention and evidence locks"
+
+[lib]
+name = "alecto_notary"
+path = "src/lib.rs"
+
+[[bin]]
+name = "alecto-notary"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+ed25519-dalek = "2"
+sha2 = "0.10"
+hex = "0.4"
+base64 = "0.22"
+rand = "0.8"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "process", "io-util", "time", "signal", "sync", "net"] }
+axum = { version = "0.8", features = ["json"] }
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+
+[profile.release]
+lto = "thin"
