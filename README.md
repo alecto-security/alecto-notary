@@ -1,14 +1,74 @@
-# alecto-notary
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/emblem-mono-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/emblem-mono-black.svg">
+    <img alt="Alecto" src="docs/assets/emblem-mono-black.svg" width="140">
+  </picture>
+</p>
 
-Record camera streams continuously, seal every segment in a signed hash chain, keep a rolling buffer, and let footage be locked against deletion. Footage that went through the Notary can later be proven unaltered.
+<h1 align="center">alecto-notary</h1>
 
-**Status:** MVP. Spec: [docs/SPEC.md](docs/SPEC.md).
+<p align="center">
+  <strong>Record it. Sign it. Prove it was not touched.</strong>
+</p>
 
-![CI](https://github.com/alecto-security/alecto-notary/actions/workflows/ci.yml/badge.svg)
-![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)
-![Rust](https://img.shields.io/badge/rust-stable-orange.svg)
+<p align="center">
+  <a href="https://github.com/alecto-security/alecto-notary/actions/workflows/ci.yml"><img src="https://github.com/alecto-security/alecto-notary/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License: Apache-2.0"></a>
+  <img src="https://img.shields.io/badge/rust-stable-orange.svg" alt="Rust stable">
+  <img src="https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-lightgrey.svg" alt="Platform">
+</p>
 
-Linux/macOS:
+<p align="center">
+  Record camera streams continuously, seal every segment in a signed hash chain,<br>
+  keep a rolling buffer, and let footage be locked against deletion.<br>
+  Footage that went through the Notary can later be <strong>proven unaltered</strong>.
+</p>
+
+---
+
+## How it works
+
+```mermaid
+%%{init: {'theme': 'neutral'}}%%
+flowchart LR
+    CAM["cameras<br>RTSP"] --> REC["recorder<br>ffmpeg -c copy"]
+    REC --> SEG["segments/<br>camera/day/*.ts"]
+    REC --> CHAIN["chain/<br>day.jsonl — signed records"]
+    RET["retention<br>oldest unlocked first"] --> SEG
+    LOCK["locks/<br>evidence locks"] -. exempt .-> RET
+    RET -->|deleted record| CHAIN
+    CHAIN --> API["store API<br>read-only + POST /v1/locks"]
+    SEG --> API
+    API --> VER["verify<br>chain · signatures · file hashes"]
+```
+
+The Notary pulls each camera's stream as a **second client** — it never sits
+in the camera-to-recorder path, and a crash here cannot touch the site's own
+recording. Every segment that closes gets a signed record. Every deletion
+gets a signed record too. Missing footage is recorded, never hidden.
+
+## The whole point, in 20 seconds
+
+```console
+$ alecto-notary verify
+CAM-W01: 1441 records (1400 segments, 3 gaps, 2 deleted) OK
+CAM-E02: 1440 records (1438 segments, 2 gaps, 0 deleted) OK
+
+$ alecto-notary verify --public-key 9f3c…b7d1     # auditor mode: public key only
+CAM-W01: 1441 records (1400 segments, 3 gaps, 2 deleted) FAILED
+  Error seq=812 file=segments/CAM-W01/2026-10-14/221200_812.ts hash mismatch (file changed since sealing)
+```
+
+An auditor needs nothing from you except the public key. One flipped byte
+names the exact file.
+
+## Quick start
+
+You need Rust stable. ffmpeg + ffprobe on `PATH` for recording and the
+end-to-end tests (unit and API tests run without them).
+
+Linux / macOS:
 
 ```bash
 cargo test                                # unit + API + real-ffmpeg tests (ffmpeg optional, tests skip without it)
@@ -54,12 +114,25 @@ cargo run -- verify --public-key <b64>
 <root>/audit.jsonl                            who locked, unlocked, deleted
 ```
 
-## Contract C2
+## Contract C2: the record format
 
-- Record format and canonicalization: `src/record.rs`, specified in [docs/SPEC.md](docs/SPEC.md). Test vectors: `testvectors/segment-record.json` — a conforming verifier reproduces every hash and signature in that file without importing this code.
-- `record_hash` = SHA-256 of the canonical record including `sig`; the next record's `prev_record_hash` points to it. First record uses 64 zeros.
-- Signature = Ed25519 over the canonical record without `sig`.
-- Kinds: `segment`, `gap` (explicit, with reason), `deleted` (proof stays after the file is removed), `checkpoint` (signed chain head).
+Every record is one JSON object per line, canonicalized (sorted keys, no
+whitespace), signed with Ed25519. Each record's `record_hash` (SHA-256 of
+the canonical record including `sig`) is what the next record points back
+to:
+
+```mermaid
+%%{init: {'theme': 'neutral'}}%%
+flowchart LR
+    G["0000…0000<br>genesis"] -->|"prev_record_hash"| R1["seq 1<br>segment"] -->|"prev_record_hash"| R2["seq 2<br>segment"] -->|"prev_record_hash"| R3["seq 3<br>gap — camera offline"] -->|"prev_record_hash"| R4["seq 4<br>segment"] --> CP["checkpoint<br>signed chain head"]
+```
+
+- Spec: [docs/SPEC.md](docs/SPEC.md). Canonicalization: `src/record.rs`.
+- Test vectors: `testvectors/segment-record.json` — a conforming verifier
+  reproduces every hash and signature in that file without importing this
+  code.
+- Kinds: `segment`, `gap` (explicit, with reason), `deleted` (proof stays
+  after the file is removed), `checkpoint` (signed chain head).
 
 ## Store API (loopback + bearer token)
 
@@ -81,7 +154,7 @@ cargo run -- verify --public-key <b64>
 - **Time comes from the host clock.** Every record carries `clock.source`; measured skew (`skew_ms`) is not populated yet.
 - **Hard kills:** a `kill -9` or `taskkill /F` of the Notary can leave its ffmpeg children running. Run it under systemd with `KillMode=control-group`. File names carry a per-launch id, so an orphan cannot collide with the next run, and leftover spool files are sealed on the next start.
 - **Orphans:** a crash between moving a segment and writing its record leaves a file the chain does not mention. `verify` reports these as warnings.
-- Storage planning: 1 TB holds about 6 to 12 days of one 8MP stream. Set `max_age_days` and `max_bytes` from real bitrates.
+- **Storage planning:** 1 TB holds about 6 to 12 days of one 8MP stream. Set `max_age_days` and `max_bytes` from real bitrates.
 
 ## Security
 
@@ -90,3 +163,9 @@ Vulnerability reports: see [SECURITY.md](SECURITY.md). Known limitations are lis
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
+
+---
+
+<p align="center">
+  <sub>Built by <a href="https://github.com/alecto-security">Alecto Security</a>. We move first.</sub>
+</p>
