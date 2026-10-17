@@ -18,7 +18,7 @@ Record camera streams continuously, seal every segment in a signed hash chain, k
 
 ## Source of truth
 
-Spec: sibling `alecto-docs/engineering/build/notary-spec.md`. Boundaries: `alecto-docs/engineering/architecture/codebase-map.md`. QA log: `alecto-docs/research/qa-new-products-results.md`.
+Spec: `docs/SPEC.md` in this repo. The record format (Contract C2) and its test vectors are the public interop contract.
 
 ## Stack
 
