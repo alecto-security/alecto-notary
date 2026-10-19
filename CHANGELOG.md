@@ -9,6 +9,11 @@ change) is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## [Unreleased]
 
+### Repo visibility
+
+- Public (Apache-2.0) since 2026-10-15. This is the trust layer of the
+  ecosystem; no further visibility changes planned for this repo.
+
 ## [0.1.0] - 2026-10-19
 
 Initial public release. Apache-2.0.
