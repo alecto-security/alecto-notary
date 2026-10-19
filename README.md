@@ -15,6 +15,7 @@
 <p align="center">
   <a href="https://github.com/alecto-security/alecto-notary/actions/workflows/ci.yml"><img src="https://github.com/alecto-security/alecto-notary/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License: Apache-2.0"></a>
+  <a href="https://github.com/alecto-security/alecto-notary/tags"><img src="https://img.shields.io/github/v/tag/alecto-security/alecto-notary?label=release&sort=semver" alt="Latest release"></a>
   <img src="https://img.shields.io/badge/rust-stable-orange.svg" alt="Rust stable">
   <img src="https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-lightgrey.svg" alt="Platform">
 </p>
@@ -130,7 +131,8 @@ flowchart LR
 - Spec: [docs/SPEC.md](docs/SPEC.md). Canonicalization: `src/record.rs`.
 - Test vectors: `testvectors/segment-record.json` — a conforming verifier
   reproduces every hash and signature in that file without importing this
-  code.
+  code. [docs/SPEC.md](docs/SPEC.md) pins each vector file's SHA-256, and CI
+  fails on any mismatch.
 - Kinds: `segment`, `gap` (explicit, with reason), `deleted` (proof stays
   after the file is removed), `checkpoint` (signed chain head).
 
@@ -159,6 +161,13 @@ flowchart LR
 ## Security
 
 Vulnerability reports: see [SECURITY.md](SECURITY.md). Known limitations are listed above — a duplicate report about them is welcome but is feature work, not a vulnerability.
+
+## Releases
+
+Releases are tagged `vX.Y.Z` (semver) on `main`, after CI is green. See the
+[tags](https://github.com/alecto-security/alecto-notary/tags),
+[CHANGELOG.md](CHANGELOG.md), and the version policy in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

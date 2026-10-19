@@ -1,4 +1,4 @@
-//! QA matrix N1..N9 from alecto-docs/engineering/build/notary-spec.md.
+//! QA matrix N1..N9: recorder, chain, retention, locks, and the store API.
 
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
