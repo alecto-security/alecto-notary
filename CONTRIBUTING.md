@@ -37,6 +37,23 @@ silently. See `docs/SPEC.md`.
   recording.
 - Keep it dependency-light. Flat files, no database.
 
+## Releases and versioning
+
+Tags are `vX.Y.Z` (semver) on `main`, cut only after CI is green. The
+version policy for this repo:
+
+- **Major** — any change to the signed segment-record format (Contract C2)
+  or to the store API contract. While the version is `0.y.z` this increments
+  `y` (`0.2.0`); from `1.0.0` on it increments `x`. The format's own `v`
+  field still bumps separately, so a new record version is a major release
+  *and* a `v` bump, never a silent edit to `v: 1`.
+- **Minor** — additive, optional changes: optional record fields that an
+  older verifier can ignore, new optional query parameters, new routes.
+- **Patch** — fixes that leave the wire format and API shape untouched:
+  bug fixes, docs, internal refactors.
+
+Every release adds an entry to [CHANGELOG.md](CHANGELOG.md).
+
 ## Pull requests
 
 - Describe the problem and the fix; link the issue if there is one.
