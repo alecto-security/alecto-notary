@@ -103,6 +103,22 @@ One JSON object per line:
   A conforming implementation reproduces every hash and signature in that
   file without importing code from this repo.
 
+## Test vector manifest
+
+`testvectors/` is the frozen Contract C2 conformance corpus. Each file's
+digest is pinned below, and `scripts/check-testvectors.sh` recomputes them in
+CI and fails on any mismatch. A change to a vector file therefore cannot land
+silently, which is what makes drift between this repo and any implementation
+that mirrors these vectors detectable by either side.
+
+| File | SHA-256 |
+|------|---------|
+| `segment-record.json` | `9e8dff1d7fea2015d17e91c2d8a93fac40a5fa0b2f2546f06bd272c9b0b69d6c` |
+
+A row changes only when the format it fixes changes; a vector file for a
+future record version is added as a new file and a new row, and does not
+alter the digests of released ones.
+
 ## Contract C2: store API
 
 Loopback only; non-loopback binds are refused until TLS is implemented.
